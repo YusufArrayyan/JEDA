@@ -1,0 +1,39 @@
+# Blueprint Render: https://render.com/docs/blueprint-spec
+# Buat lewat Dashboard Render -> New -> Blueprint -> pilih repo ini.
+databases:
+  - name: jeda-db
+    databaseName: jeda
+    user: jeda
+    plan: free
+    region: singapore
+
+services:
+  - type: web
+    name: jeda
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: jeda-db
+          property: connectionString
+      - key: JEDA_COOKIE_SECURE
+        value: "1"
+      - key: JEDA_CORS_ORIGINS
+        value: ""
+      # Ganti ke "0" untuk pilot sungguhan: catatan "angka ilustrasi" hilang dan peserta sintetis tidak dibuat.
+      - key: JEDA_MODE_UJI
+        value: "1"
+      - key: JEDA_SEED_DEMO
+        value: "1"
+      # Kata sandi akun tim awal: Render meminta Anda mengisinya saat Blueprint dibuat.
+      - key: JEDA_ADMIN_PASSWORD
+        sync: false
+      - key: JEDA_FASILITATOR_PASSWORD
+        sync: false
+      - key: JEDA_PEMERIKSA_PASSWORD
+        sync: false

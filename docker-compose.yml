@@ -1,0 +1,28 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: jeda
+      POSTGRES_USER: jeda
+      POSTGRES_PASSWORD: jeda-lokal
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jeda -d jeda"]
+      interval: 5s
+      retries: 10
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://jeda:jeda-lokal@db:5432/jeda
+      JEDA_CORS_ORIGINS: ""
+    volumes:
+      - appdata:/data
+    depends_on:
+      db:
+        condition: service_healthy
+volumes:
+  dbdata:
+  appdata:
