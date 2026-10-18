@@ -12,13 +12,17 @@ docker compose up --build
 
 Buka http://localhost:8000. Basis data PostgreSQL 16; data contoh dimuat otomatis saat basis data masih kosong.
 
-### Render (Blueprint)
+### Render (Blueprint) + Neon
 
-`render.yaml` membuat satu web service (Docker) dan satu PostgreSQL di region Singapura.
+`render.yaml` membuat satu web service (Docker) di region Singapura. Basis datanya dari **Neon** (PostgreSQL gratis), karena paket gratis Render hanya mengizinkan satu PostgreSQL aktif per akun.
 
-1. Dashboard Render → **New** → **Blueprint** → pilih repo ini.
-2. Isi `JEDA_ADMIN_PASSWORD`, `JEDA_FASILITATOR_PASSWORD`, `JEDA_PEMERIKSA_PASSWORD` saat diminta. Bila dibiarkan kosong, kata sandi acak dibuat dan dicatat sekali di log layanan.
-3. Klik **Apply**. Build pertama sekitar 5–10 menit. Setelah hidup, masuk sebagai tim lewat **Masuk sebagai tim program**, lalu ganti kata sandi di halaman **Akun**.
+1. Di [neon.tech](https://neon.tech), buat project baru dengan region **AWS Asia Pacific (Singapore)** agar dekat dengan Render.
+2. Buka **Connect**, matikan pilihan **Connection pooling**, lalu salin connection string-nya (`postgresql://…neon.tech/neondb?sslmode=require…`).
+3. Dashboard Render → **New** → **Blueprint** → pilih repo ini.
+4. Saat diminta, tempel connection string tadi ke `DATABASE_URL`, lalu isi `JEDA_ADMIN_PASSWORD`, `JEDA_FASILITATOR_PASSWORD`, `JEDA_PEMERIKSA_PASSWORD`. Bila kata sandi dikosongkan, kata sandi acak dibuat dan dicatat sekali di log layanan.
+5. Klik **Apply**. Build pertama sekitar 5–10 menit. Setelah hidup, masuk lewat **Masuk sebagai tim program**, lalu ganti kata sandi di halaman **Akun**.
+
+Bila suatu saat ingin menumpang di basis data yang sudah dipakai aplikasi lain (misalnya `sempat-db`), setel `JEDA_DB_SCHEMA=jeda`: semua tabel JEDA masuk ke skema `jeda` dan tidak menyentuh tabel lain.
 
 Dua mode isi awal, dipilih lewat variabel lingkungan sebelum basis data pertama kali dibuat:
 
@@ -29,9 +33,9 @@ Dua mode isi awal, dipilih lewat variabel lingkungan sebelum basis data pertama 
 | Ruang dan peserta | 3 ruang contoh, Rafi (`RAFI-2026`), 37 peserta sintetis | Tidak ada; fasilitator membuat ruang dari **Kelola ruang** |
 | Bank kasus | 12 kasus | 12 kasus |
 
-Kode pribadi Rafi tercantum di README ini, jadi **jangan pakai mode demo untuk data peserta sungguhan**. Untuk beralih dari demo ke pilot, buat basis data baru (Render: hapus lalu buat ulang database `jeda-db`).
+Kode pribadi Rafi tercantum di README ini, jadi **jangan pakai mode demo untuk data peserta sungguhan**. Untuk beralih dari demo ke pilot, pakai basis data baru (di Neon: buat branch atau database baru, lalu ganti `DATABASE_URL`).
 
-Catatan paket gratis Render: layanan tidur setelah 15 menit tanpa akses (bangun sekitar 1 menit), dan PostgreSQL gratis kedaluwarsa setelah 30 hari. Untuk pilot delapan minggu, naikkan ke paket berbayar.
+Catatan paket gratis: layanan Render tidur setelah 15 menit tanpa akses (bangun sekitar 1 menit), dan Neon menidurkan basis data yang menganggur (bangun dalam hitungan detik). Untuk pilot delapan minggu dengan 100 peserta, pertimbangkan paket berbayar agar jam pilot 07.00–21.00 tidak terganggu (NFR-3).
 
 ### Pengembangan lokal
 

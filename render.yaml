@@ -1,12 +1,7 @@
 # Blueprint Render: https://render.com/docs/blueprint-spec
 # Buat lewat Dashboard Render -> New -> Blueprint -> pilih repo ini.
-databases:
-  - name: jeda-db
-    databaseName: jeda
-    user: jeda
-    plan: free
-    region: singapore
-
+# Basis data tidak dibuat di Render (paket gratis hanya boleh satu PostgreSQL).
+# Pakai PostgreSQL gratis dari Neon, lalu tempel connection string-nya ke DATABASE_URL saat diminta.
 services:
   - type: web
     name: jeda
@@ -17,15 +12,18 @@ services:
     healthCheckPath: /api/health
     autoDeploy: true
     envVars:
+      # Connection string Neon (Direct connection, bukan "Pooled"), contoh:
+      # postgresql://user:sandi@ep-xxx.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
       - key: DATABASE_URL
-        fromDatabase:
-          name: jeda-db
-          property: connectionString
+        sync: false
+      # Opsional: isi "jeda" bila basis datanya dipakai bersama aplikasi lain.
+      - key: JEDA_DB_SCHEMA
+        value: ""
       - key: JEDA_COOKIE_SECURE
         value: "1"
       - key: JEDA_CORS_ORIGINS
         value: ""
-      # Ganti ke "0" untuk pilot sungguhan: catatan "angka ilustrasi" hilang dan peserta sintetis tidak dibuat.
+      # Ganti ke "0" untuk pilot sungguhan: catatan "angka ilustrasi" hilang dan data contoh tidak dibuat.
       - key: JEDA_MODE_UJI
         value: "1"
       - key: JEDA_SEED_DEMO

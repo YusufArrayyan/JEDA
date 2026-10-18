@@ -12,6 +12,9 @@ for _p in ("postgres://", "postgresql://"):
         DATABASE_URL = "postgresql+psycopg://" + DATABASE_URL[len(_p):]
         break
 
+# Kosong = skema bawaan (public). Isi, misalnya "jeda", untuk berbagi basis data dengan aplikasi lain.
+DB_SCHEMA = os.getenv("JEDA_DB_SCHEMA", "").strip()
+
 SESSION_DAYS = float(os.getenv("JEDA_SESSION_DAYS", "30"))
 COOKIE_SECURE = os.getenv("JEDA_COOKIE_SECURE", "0") == "1"
 CORS_ORIGINS = [o for o in os.getenv("JEDA_CORS_ORIGINS", "http://localhost:5173").split(",") if o]
