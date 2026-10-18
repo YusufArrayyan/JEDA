@@ -1,7 +1,7 @@
 import { Download, Play, Plus } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { ErrorNote, Field, Note, PageTitle } from "../../components/ui";
+import { Confirm, ErrorNote, Field, Note, PageTitle } from "../../components/ui";
 import { api, unduh } from "../../lib/api";
 import { tgl, useApp } from "../../lib/app";
 
@@ -43,6 +43,8 @@ function Tim() {
   const [d, setD] = useState<{ staf: { id: string; nama: string; surel: string; peran: string; aktif: boolean }[]; jumlah_peserta: number } | null>(null);
   const [galat, setGalat] = useState<unknown>(null);
   const [baru, setBaru] = useState({ nama: "", surel: "", peran: "fasilitator", kata_sandi: "" });
+  const [reset, setReset] = useState<{ id: string; nama: string } | null>(null);
+  const [sandiReset, setSandiReset] = useState("");
   const muat = useCallback(() => api<typeof d>("/api/admin/pengguna").then(setD).catch(setGalat), []);
   useEffect(() => {
     void muat();
@@ -81,6 +83,9 @@ function Tim() {
               <th>Surel</th>
               <th>Peran</th>
               <th>Status</th>
+              <th>
+                <span className="sr-only">Kata sandi</span>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -103,11 +108,36 @@ function Tim() {
                     {u.aktif ? "Aktif" : "Nonaktif"}
                   </label>
                 </td>
+                <td>
+                  {u.id !== profil?.id && (
+                    <button type="button" className="btn ghost sm" onClick={() => { setReset({ id: u.id, nama: u.nama }); setSandiReset(""); }}>
+                      Atur ulang kata sandi
+                    </button>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+      <Confirm
+        open={!!reset}
+        judul={`Atur ulang kata sandi ${reset?.nama ?? ""}?`}
+        ya="Simpan kata sandi"
+        onYa={() => {
+          if (sandiReset.length < 10 || !reset) return;
+          void ubah(reset.id, { kata_sandi: sandiReset }, `Kata sandi ${reset.nama} diatur ulang. Semua sesinya diakhiri.`);
+          setReset(null);
+        }}
+        onTidak={() => setReset(null)}
+      >
+        <div className="stack-sm" style={{ marginTop: 6 }}>
+          <span>Sampaikan kata sandi baru lewat jalur pribadi, lalu minta pemiliknya menggantinya di halaman Akun.</span>
+          <Field label="Kata sandi baru" htmlFor="rs-pw" error={sandiReset && sandiReset.length < 10 ? "Minimal 10 karakter." : null}>
+            <input id="rs-pw" className="input" type="password" autoComplete="new-password" value={sandiReset} onChange={(e) => setSandiReset(e.target.value)} />
+          </Field>
+        </div>
+      </Confirm>
       <form
         className="card stack"
         onSubmit={(e) => {

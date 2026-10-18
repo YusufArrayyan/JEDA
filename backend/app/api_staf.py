@@ -10,7 +10,7 @@ from typing import Literal
 from fastapi import APIRouter, Depends
 from fastapi.responses import Response
 from pydantic import BaseModel, Field
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from .agregat import mingguan, peserta_layak, ringkasan
@@ -29,6 +29,7 @@ from .models import (
     RekapLuring,
     RuangJeda,
     SesiLatihan,
+    SesiMasuk,
     SurveiSUS,
     Tema,
     Teknik,
@@ -279,6 +280,7 @@ def buat_staf(body: StafBaru, user: Pengguna = Depends(hanya_admin), db: Session
 class UbahPeran(BaseModel):
     peran: Literal["fasilitator", "pemeriksa", "admin"] | None = None
     aktif: bool | None = None
+    kata_sandi: str | None = Field(default=None, min_length=10, max_length=200)
 
 
 @router.patch("/admin/pengguna/{pid}")
@@ -294,6 +296,10 @@ def ubah_staf(pid: str, body: UbahPeran, user: Pengguna = Depends(hanya_admin), 
     if body.aktif is not None and body.aktif != u.aktif:
         audit(db, user, "akun_diaktifkan" if body.aktif else "akun_dinonaktifkan", f"pengguna:{u.surel}")
         u.aktif = body.aktif
+    if body.kata_sandi:
+        u.kata_sandi_hash = hash_rahasia(body.kata_sandi)
+        db.execute(delete(SesiMasuk).where(SesiMasuk.pengguna_id == u.id))
+        audit(db, user, "kata_sandi_diatur_ulang", f"pengguna:{u.surel}")
     db.commit()
     return {"ok": True}
 

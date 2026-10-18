@@ -241,3 +241,16 @@ def test_fungsi_murni():
     assert hitung_kelengkapan("a", "", None, "c") == 2
     assert skor_sus([5, 1] * 5) == 100.0
     assert skor_sus([3] * 10) == 50.0
+
+
+def test_ganti_kata_sandi_staf(client):
+    masuk_staf(client, "hendra@jeda.local", "jeda-pemeriksa-2026")
+    assert client.post("/api/saya/kata-sandi", json={"lama": "salah", "baru": "kata-sandi-baru-123"}).json()["error"]["code"] == "sandi_lama_salah"
+    assert client.post("/api/saya/kata-sandi", json={"lama": "jeda-pemeriksa-2026", "baru": "kata-sandi-baru-123"}).status_code == 200
+    client.post("/api/keluar")
+    assert client.post("/api/masuk/staf", json={"surel": "hendra@jeda.local", "kata_sandi": "jeda-pemeriksa-2026"}).status_code == 401
+    # Admin mengatur ulang kembali ke kata sandi awal agar uji lain tetap berjalan.
+    masuk_staf(client, "admin@jeda.local", "jeda-admin-2026")
+    hid = next(u["id"] for u in client.get("/api/admin/pengguna").json()["staf"] if u["surel"] == "hendra@jeda.local")
+    assert client.patch(f"/api/admin/pengguna/{hid}", json={"kata_sandi": "jeda-pemeriksa-2026"}).status_code == 200
+    masuk_staf(client, "hendra@jeda.local", "jeda-pemeriksa-2026")

@@ -18,7 +18,20 @@ Buka http://localhost:8000. Basis data PostgreSQL 16; data contoh dimuat otomati
 
 1. Dashboard Render → **New** → **Blueprint** → pilih repo ini.
 2. Isi `JEDA_ADMIN_PASSWORD`, `JEDA_FASILITATOR_PASSWORD`, `JEDA_PEMERIKSA_PASSWORD` saat diminta. Bila dibiarkan kosong, kata sandi acak dibuat dan dicatat sekali di log layanan.
-3. Untuk pilot sungguhan, setel `JEDA_MODE_UJI=0` dan `JEDA_SEED_DEMO=0` sebelum basis data pertama kali dibuat.
+3. Klik **Apply**. Build pertama sekitar 5–10 menit. Setelah hidup, masuk sebagai tim lewat **Masuk sebagai tim program**, lalu ganti kata sandi di halaman **Akun**.
+
+Dua mode isi awal, dipilih lewat variabel lingkungan sebelum basis data pertama kali dibuat:
+
+| | Demo (bawaan `render.yaml`) | Pilot sungguhan |
+|---|---|---|
+| Variabel | `JEDA_MODE_UJI=1`, `JEDA_SEED_DEMO=1` | `JEDA_MODE_UJI=0`, `JEDA_SEED_DEMO=0` |
+| Akun tim | admin, Sari, Dimas, Pak Hendra | admin, Sari, Pak Hendra |
+| Ruang dan peserta | 3 ruang contoh, Rafi (`RAFI-2026`), 37 peserta sintetis | Tidak ada; fasilitator membuat ruang dari **Kelola ruang** |
+| Bank kasus | 12 kasus | 12 kasus |
+
+Kode pribadi Rafi tercantum di README ini, jadi **jangan pakai mode demo untuk data peserta sungguhan**. Untuk beralih dari demo ke pilot, buat basis data baru (Render: hapus lalu buat ulang database `jeda-db`).
+
+Catatan paket gratis Render: layanan tidur setelah 15 menit tanpa akses (bangun sekitar 1 menit), dan PostgreSQL gratis kedaluwarsa setelah 30 hari. Untuk pilot delapan minggu, naikkan ke paket berbayar.
 
 ### Pengembangan lokal
 
@@ -52,7 +65,7 @@ Buka http://localhost:5173. Vite meneruskan `/api` ke port 8000 (ubah dengan `JE
 | Pemeriksa fakta (Pak Hendra) | hendra@jeda.local | jeda-pemeriksa-2026 |
 | Admin program | admin@jeda.local | jeda-admin-2026 |
 
-Saat `JEDA_COOKIE_SECURE=1` (HTTPS), kata sandi di atas tidak dipakai; isi lewat variabel lingkungan atau ambil dari log.
+Saat `JEDA_COOKIE_SECURE=1` (HTTPS), kata sandi di atas tidak dipakai; isi lewat variabel lingkungan atau ambil dari log. Akun tim mengganti kata sandinya di halaman **Akun**; admin dapat mengatur ulang kata sandi akun tim lain di **Admin → Akun tim**.
 
 ## Data contoh
 
@@ -63,9 +76,11 @@ Saat `JEDA_COOKIE_SECURE=1` (HTTPS), kata sandi di atas tidak dipakai; isi lewat
 ## Pengujian
 
 ```bash
-cd backend && .venv/Scripts/python -m pytest -q     # 16 uji penerimaan API
+cd backend && .venv/Scripts/python -m pytest -q     # 17 uji penerimaan API (SQLite)
 cd frontend && node e2e/smoke.mjs                   # 31 pemeriksaan ujung ke ujung (Edge headless; API dan Vite harus hidup)
 ```
+
+Untuk menjalankan uji yang sama di PostgreSQL kosong, setel `JEDA_TEST_DATABASE_URL=postgres://user@host:port/db` sebelum `pytest`.
 
 Uji API mencakup: kode ruang salah tidak membocorkan keberadaan kode, persetujuan wajib sebelum tes, fasilitator dan admin tidak bisa membaca jejak peserta, ruang empat orang ditutup, CSV dan ekspor tanpa nama atau teks bebas, telaah dua tahap dengan riwayat, ruang pembanding tidak melihat latihan, kasus ditarik hilang dari latihan, konflik luring diselesaikan dengan waktu terbaru, dan penghapusan data pribadi.
 
@@ -105,7 +120,7 @@ Mengikuti PRD 10.1: kerangka DESIGN.md Notion (kanvas putih, tinta arang hangat,
 ## Yang belum dan perlu diperiksa sebelum pilot
 
 - Kasus dan soal tes perlu divalidasi pemeriksa fakta mitra; isinya kini rancangan penyusun.
-- Jalur Docker/PostgreSQL ditulis mengikuti SEMPAT, tetapi pengujian otomatis berjalan di SQLite.
+- Uji API (17) dan uji ujung ke ujung (31) sudah lulus di PostgreSQL 18 dengan build produksi, service worker aktif, dan cookie Secure. `Dockerfile` sendiri belum dibangun di mesin ini (Docker Desktop tidak menyala); build pertama di Render menjadi uji image-nya.
 - Uji mode pesawat dijalankan di Edge (Chromium) desktop; uji di Android dan Safari iOS nyata (NFR-4, NFR-6) belum dilakukan.
 - Audit WCAG dengan pembaca layar dan Lighthouse (NFR-1, NFR-5) belum dijalankan.
 - Konsultasi hukum UU PDP, telaah etik, dan prosedur insiden (Bab 11) berada di luar kode.

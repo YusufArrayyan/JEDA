@@ -204,6 +204,32 @@ def saya(user: Pengguna | None = Depends(pengguna_opsional), db: Session = Depen
     return {"profil": _profil(db, user) if user else None}
 
 
+class GantiSandi(BaseModel):
+    lama: str = Field(min_length=1, max_length=200)
+    baru: str = Field(min_length=10, max_length=200)
+
+
+@router.post("/saya/kata-sandi")
+def ganti_kata_sandi(body: GantiSandi, request: Request, user: Pengguna = Depends(pengguna_aktif), db: Session = Depends(get_db)):
+    """Akun tim mengganti kata sandinya sendiri. Sesi lain milik akun ini diakhiri."""
+    from .models import SesiMasuk
+
+    masuk_limiter.check("sandi:" + user.id)
+    if user.peran == "peserta":
+        raise ApiError(403, "akses_ditolak", "Peserta masuk dengan kode pribadi, bukan kata sandi.", "")
+    if not cocok_rahasia(body.lama, user.kata_sandi_hash):
+        raise ApiError(422, "sandi_lama_salah", "Kata sandi saat ini tidak cocok.", "Periksa lagi kata sandi yang kamu pakai untuk masuk.")
+    if body.baru == body.lama:
+        raise ApiError(422, "sandi_sama", "Kata sandi baru sama dengan yang lama.", "Pakai kata sandi lain, minimal 10 karakter.")
+    user.kata_sandi_hash = hash_rahasia(body.baru)
+    sekarang = request.cookies.get(COOKIE_NAME)
+    for s in db.scalars(select(SesiMasuk).where(SesiMasuk.pengguna_id == user.id, SesiMasuk.token != (sekarang or ""))):
+        db.delete(s)
+    audit(db, user, "kata_sandi_diubah", f"pengguna:{user.surel}")
+    db.commit()
+    return {"ok": True}
+
+
 class Persetujuan(BaseModel):
     setuju: bool
     di_bawah_18: bool

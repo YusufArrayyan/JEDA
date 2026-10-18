@@ -104,7 +104,6 @@ def seed() -> None:
 
         admin = staf("Admin Program", "admin", "admin@jeda.local", "JEDA_ADMIN_PASSWORD", "jeda-admin-2026")
         sari = staf("Sari", "fasilitator", "sari@jeda.local", "JEDA_FASILITATOR_PASSWORD", "jeda-fasilitator-2026")
-        dimas = staf("Dimas", "fasilitator", "dimas@jeda.local", "JEDA_FASILITATOR_PASSWORD", "jeda-fasilitator-2026")
         hendra = staf("Pak Hendra", "pemeriksa", "hendra@jeda.local", "JEDA_PEMERIKSA_PASSWORD", "jeda-pemeriksa-2026")
         db.flush()
 
@@ -132,6 +131,15 @@ def seed() -> None:
         for ks in kasus_list:
             db.add(Telaah(kasus_id=ks.id, penelaah_id=hendra.id, penelaah_nama=hendra.nama_samaran, tahap="2", dari_status="ditelaah", ke_status="terbit", catatan="Divalidasi untuk bank kasus awal pilot."))
 
+        db.add(LogAudit(aktor_nama="sistem", aksi="data_awal_dimuat", objek="basis_data", detail={"kasus": len(kasus_list), "demo": SEED_DEMO}))
+        if not SEED_DEMO:
+            # Mode pilot: hanya akun tim dan bank kasus. Ruang dibuat fasilitator; tidak ada akun peserta contoh.
+            db.commit()
+            log.info("data awal dimuat (tanpa data contoh)")
+            return
+
+        dimas = staf("Dimas", "fasilitator", "dimas@jeda.local", "JEDA_FASILITATOR_PASSWORD", "jeda-fasilitator-2026")
+        db.flush()
         r07 = RuangJeda(nama="Ruang JEDA 07", kode="JD-07-BKL", wilayah="Kota Bengkulu", jenis_lembaga="sekolah", fasilitator_id=sari.id, tes_awal_buka=True, tes_akhir_buka=True)
         r12 = RuangJeda(nama="Ruang JEDA 12 Perpustakaan", kode=kode_ruang_baru(), wilayah="Kota Bengkulu", jenis_lembaga="perpustakaan", fasilitator_id=dimas.id, tes_awal_buka=True)
         r03 = RuangJeda(nama="Ruang Pembanding 03", kode=kode_ruang_baru(), wilayah="Bengkulu Tengah", jenis_lembaga="sekolah", fasilitator_id=sari.id, pembanding=True, tes_awal_buka=True, tes_akhir_buka=False)
@@ -149,10 +157,7 @@ def seed() -> None:
         db.add(Keanggotaan(pengguna_id=rafi.id, ruang_id=r07.id, persetujuan_data=True, persetujuan_pada=datetime.now(timezone.utc), di_bawah_18=True, wali_disetujui=True, wali_dicatat_pada=datetime.now(timezone.utc), urutan_perangkat="AB"))
         db.add(Notifikasi(pengguna_id=rafi.id, teks="Selamat datang di Ruang JEDA 07. Mulai dengan tes awal, lalu latihan pertamamu.", tautan="/tes/awal"))
 
-        if SEED_DEMO:
-            _isi_demo(db, r07, r12, r03, kasus_list, butir, sari, hendra)
-
-        db.add(LogAudit(aktor_nama="sistem", aksi="data_awal_dimuat", objek="basis_data", detail={"kasus": len(kasus_list), "demo": SEED_DEMO}))
+        _isi_demo(db, r07, r12, r03, kasus_list, butir, sari, hendra)
         db.commit()
         log.info("data awal dimuat")
 

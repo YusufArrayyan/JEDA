@@ -1,7 +1,7 @@
 import { Bell, Download, LogOut, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Confirm, ErrorNote, Note, PageTitle } from "../components/ui";
+import { Confirm, ErrorNote, Field, Note, PageTitle } from "../components/ui";
 import { api, simpanBlob } from "../lib/api";
 import { tgl, useApp } from "../lib/app";
 import { hapusDataPerangkat } from "../lib/offline";
@@ -113,6 +113,8 @@ export default function Akun() {
         )}
       </section>
 
+      {profil.peran !== "peserta" && <GantiSandi />}
+
       <section className="stack-sm" aria-labelledby="h-data">
         <h2 id="h-data">Datamu</h2>
         <Note>Data perseoranganmu hanya terlihat olehmu. Fasilitator dan admin melihat angka gabungan dari sedikitnya lima orang.</Note>
@@ -134,5 +136,65 @@ export default function Akun() {
         Akun, jejak, latihan, dan kode pribadimu dihapus dan tidak bisa dikembalikan. Skor tes tetap tersimpan tanpa identitas untuk angka gabungan program.
       </Confirm>
     </div>
+  );
+}
+
+function GantiSandi() {
+  const { toast, profil } = useApp();
+  const [lama, setLama] = useState("");
+  const [baru, setBaru] = useState("");
+  const [ulang, setUlang] = useState("");
+  const [galat, setGalat] = useState<unknown>(null);
+  const [cek, setCek] = useState(false);
+  const [kirim, setKirim] = useState(false);
+  const pendek = baru.length < 10;
+  const beda = ulang !== baru;
+
+  async function simpan() {
+    setCek(true);
+    setGalat(null);
+    if (!lama || pendek || beda) return;
+    setKirim(true);
+    try {
+      await api("/api/saya/kata-sandi", { method: "POST", body: { lama, baru } });
+      setLama("");
+      setBaru("");
+      setUlang("");
+      setCek(false);
+      toast("Kata sandi diganti. Sesi di perangkat lain sudah diakhiri.");
+    } catch (e) {
+      setGalat(e);
+    } finally {
+      setKirim(false);
+    }
+  }
+
+  return (
+    <section className="stack-sm" aria-labelledby="h-sandi">
+      <h2 id="h-sandi">Ganti kata sandi</h2>
+      <form
+        className="card stack"
+        onSubmit={(e) => {
+          e.preventDefault();
+          void simpan();
+        }}
+        noValidate
+      >
+        <input type="text" name="username" autoComplete="username" value={profil?.surel ?? ""} hidden readOnly />
+        <Field label="Kata sandi saat ini" htmlFor="ks-lama" error={cek && !lama ? "Isi kata sandi saat ini." : null}>
+          <input id="ks-lama" name="current-password" className="input" type="password" autoComplete="current-password" value={lama} onChange={(e) => setLama(e.target.value)} aria-invalid={cek && !lama} />
+        </Field>
+        <Field label="Kata sandi baru" htmlFor="ks-baru" help="Minimal 10 karakter." error={cek && pendek ? "Kata sandi baru minimal 10 karakter." : null}>
+          <input id="ks-baru" name="new-password" className="input" type="password" autoComplete="new-password" value={baru} onChange={(e) => setBaru(e.target.value)} aria-invalid={cek && pendek} />
+        </Field>
+        <Field label="Ulangi kata sandi baru" htmlFor="ks-ulang" error={cek && !pendek && beda ? "Kedua kata sandi baru belum sama." : null}>
+          <input id="ks-ulang" name="confirm-password" className="input" type="password" autoComplete="new-password" value={ulang} onChange={(e) => setUlang(e.target.value)} aria-invalid={cek && !pendek && beda} />
+        </Field>
+        <ErrorNote error={galat} />
+        <button className="btn primary" style={{ alignSelf: "flex-start" }} disabled={kirim}>
+          {kirim ? "Menyimpan…" : "Simpan kata sandi baru"}
+        </button>
+      </form>
+    </section>
   );
 }

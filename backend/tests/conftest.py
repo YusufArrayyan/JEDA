@@ -5,7 +5,8 @@ from pathlib import Path
 
 _tmp = tempfile.mkdtemp(prefix="jeda-test-")
 os.environ["JEDA_DATA_DIR"] = _tmp
-os.environ["DATABASE_URL"] = f"sqlite:///{Path(_tmp, 'test.db').as_posix()}"
+# JEDA_TEST_DATABASE_URL memungkinkan uji yang sama dijalankan di PostgreSQL kosong.
+os.environ["DATABASE_URL"] = os.getenv("JEDA_TEST_DATABASE_URL") or f"sqlite:///{Path(_tmp, 'test.db').as_posix()}"
 os.environ["JEDA_SEED_DEMO"] = "1"
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
