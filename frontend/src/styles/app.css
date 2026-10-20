@@ -376,6 +376,16 @@ h1:focus-visible {
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 14px;
 }
+/* Empat kartu KPI muat satu baris di laptop, tanpa kartu yatim di baris kedua. */
+.grid-kpi {
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+}
+/* Kartu sempit: status di atas judul agar judul tidak terjepit jadi satu kata per baris. */
+.grid-kpi .kpi > .row.between {
+  flex-direction: column-reverse;
+  align-items: flex-start !important;
+  gap: 6px;
+}
 .page-head {
   display: flex;
   flex-direction: column;
@@ -1660,4 +1670,32 @@ table.tbl {
   .auth-form > .brand {
     display: none;
   }
+}
+
+/* ------------------------------------------------------------------ panduan */
+.panduan {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 20px 20px 56px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.panduan-video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  border: 1px solid var(--hair);
+}
+.kode-demo {
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 15px;
+  letter-spacing: 0.06em;
+  padding: 4px 10px;
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--ink);
+  white-space: nowrap;
 }

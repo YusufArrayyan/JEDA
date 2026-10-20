@@ -59,7 +59,7 @@ export function PanelRingkasan({ r, k, hanyaTes }: { r: Ringkasan; k: number; ha
   const k3 = r.k3.nilai as number | null;
   return (
     <div className="stack">
-      <div className="grid-auto">
+      <div className="grid-auto grid-kpi">
         <article className="card kpi">
           <h3 style={{ fontSize: 15 }}>Peserta aktif</h3>
           {r.peserta_aktif.tertutup ? <Tertutup k={k} /> : <span className="angka">{r.peserta_aktif.nilai}</span>}

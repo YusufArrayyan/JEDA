@@ -1,6 +1,6 @@
-import { ArrowRight, Copy, KeyRound, ShieldCheck } from "lucide-react";
+import { ArrowRight, Copy, KeyRound, PlayCircle, ShieldCheck } from "lucide-react";
 import { useState, type FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ErrorNote, Field, Logo, Note } from "../components/ui";
 import { api, ApiError } from "../lib/api";
 import { useApp } from "../lib/app";
@@ -167,6 +167,9 @@ export default function Masuk() {
               <ShieldCheck aria-hidden /> Masuk sebagai tim program
             </button>
           )}
+          <Link to="/panduan" className="btn ghost">
+            <PlayCircle aria-hidden /> Panduan dan video demo
+          </Link>
         </div>
       </div>
     </div>

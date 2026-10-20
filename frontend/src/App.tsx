@@ -27,6 +27,7 @@ const KelolaKasus = lazy(() => import("./pages/staf/KelolaKasus"));
 const EditorKasus = lazy(() => import("./pages/staf/EditorKasus"));
 const Admin = lazy(() => import("./pages/staf/Admin"));
 const Laporan = lazy(() => import("./pages/staf/Laporan"));
+const Panduan = lazy(() => import("./pages/Panduan"));
 
 function Memuat() {
   return (
@@ -60,6 +61,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/masuk" element={siap && profil ? <Navigate to={profil.persetujuan ? layarAwal(profil.peran) : "/persetujuan"} replace /> : <Masuk />} />
+      <Route path="/panduan" element={<Suspense fallback={<Memuat />}><Panduan /></Suspense>} />
       <Route path="/persetujuan" element={!siap ? <Memuat /> : profil ? <Persetujuan /> : <Navigate to="/masuk" replace />} />
       <Route path="/" element={<Wajib><Beranda /></Wajib>} />
       <Route path="/latihan" element={<Wajib><Latihan /></Wajib>} />

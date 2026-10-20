@@ -8,3 +8,6 @@ frontend/e2e/shots/
 *.db
 .env
 backend/var-*/
+materi/_kerja/
+materi/video/
+materi/panduan/

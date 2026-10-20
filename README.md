@@ -71,6 +71,10 @@ Buka http://localhost:5173. Vite meneruskan `/api` ke port 8000 (ubah dengan `JE
 
 Saat `JEDA_COOKIE_SECURE=1` (HTTPS), kata sandi di atas tidak dipakai; isi lewat variabel lingkungan atau ambil dari log. Akun tim mengganti kata sandinya di halaman **Akun**; admin dapat mengatur ulang kata sandi akun tim lain di **Admin → Akun tim**.
 
+## Panduan dan video demo
+
+Halaman `/panduan` (tautan di halaman masuk dan di **Akun**) memutar video demo dan menyediakan panduan PDF. Berkasnya ada di `frontend/public/media/`. Sumber mockup, naskah narasi, dan skrip pembuatnya ada di `materi/`; `materi/_kerja/`, `materi/video/`, dan `materi/panduan/` tidak ikut repo (berkas antara dan salinan dari `frontend/public/media/`). Daftar akun demo di halaman itu hanya tampil bila `JEDA_MODE_UJI=1`.
+
 ## Data contoh
 
 - **12 kasus lokal Bengkulu** berstatus Terbit, semuanya bertanda SIMULASI. Nama bank, perusahaan, operator, dan kanal cek fakta di dalamnya **rekaan** agar tidak menyerupai lembaga nyata. Ganti atau validasi ulang dengan pemeriksa fakta mitra sebelum pilot (kriteria rilis 5).

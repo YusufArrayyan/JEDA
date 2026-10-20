@@ -1,4 +1,4 @@
-import { Bell, Download, LogOut, Trash2 } from "lucide-react";
+import { Bell, ChevronRight, Download, LogOut, PlayCircle, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Confirm, ErrorNote, Field, Note, PageTitle } from "../components/ui";
@@ -111,6 +111,18 @@ export default function Akun() {
             ))}
           </div>
         )}
+      </section>
+
+      <section className="stack-sm" aria-labelledby="h-bantuan">
+        <h2 id="h-bantuan">Bantuan</h2>
+        <Link to="/panduan" className="list-item">
+          <PlayCircle aria-hidden style={{ color: "var(--brand)", flex: "none" }} />
+          <div className="grow">
+            <div className="title">Panduan dan video demo</div>
+            <span className="caption">Video alur lengkap dan panduan PDF</span>
+          </div>
+          <ChevronRight aria-hidden />
+        </Link>
       </section>
 
       {profil.peran !== "peserta" && <GantiSandi />}
